@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AddressBookDBService {
 
@@ -50,6 +51,39 @@ public class AddressBookDBService {
 		}
 
 		return contactList;
+	}
+
+	public int updateContactEmailOnDB(String name, String email) {
+		String sql = String.format("update user_details set email = '%s' where firstname = '%s';", email, name);
+		try (Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			return statement.executeUpdate(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	public List<Contact> getDataOfContactFromDB(String name) {
+		String sql = String.format("select * from user_details where firstname = '%s';", name);
+		List<Contact> contactDataList = new ArrayList<>();
+		try (Connection connection = this.getConnection()) {
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(sql);
+			while (resultSet.next()) {
+				String firstName = resultSet.getString("firstname");
+				String lastName = resultSet.getString("lastname");
+				String city = resultSet.getString("city");
+				String state = resultSet.getString("state");
+				String email = resultSet.getString("email");
+				String zip = resultSet.getString("zip");
+				String phoneNumber = resultSet.getString("phonenumber");
+				contactDataList.add(new Contact(firstName, lastName, city, state, email, zip, phoneNumber));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return contactDataList;
 	}
 
 }
